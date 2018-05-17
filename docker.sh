@@ -32,7 +32,7 @@ swarm_me(){
 Manager_FN(){
 myip=$(ip route get 8.8.8.8 | awk '{print $NF; exit}')
 docker swarm init --advertise-addr $myip
-
+sudo docker swarm join-token manager
 exit;
 }
 
