@@ -20,14 +20,14 @@ sudo apt-get remove docker docker-engine docker.io
 sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 sudo apt-get update
-sudo apt-get install docker-ce
+sudo apt-get install -y docker-ce
 echo "#################################"
 echo ""
 docker -v
 sleep 2
 MENU_FN
 }
-
+######################### manager #############################
 swarm_me(){
 Manager_FN(){
 myip=$(ip route get 8.8.8.8 | awk '{print $NF; exit}')
@@ -36,7 +36,7 @@ sudo docker swarm join-token manager
 sudo docker node ls
 exit;
 }
-
+########################## worker ################################
 Worker_fn(){
 echo "Paste worker Token"
 read worker_id
