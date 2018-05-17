@@ -37,7 +37,7 @@ exit;
 }
 
 Worker_fn(){
-echo "Paste worker ID"
+echo "Paste worker Token"
 read worker_id
  docker swarm join --token $worker_id
 exit;
