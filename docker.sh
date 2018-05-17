@@ -30,7 +30,9 @@ MENU_FN
 
 swarm_me(){
 Manager_FN(){
-echo "ok"
+myip=$(ip route get 8.8.8.8 | awk '{print $NF; exit}')
+docker swarm init --advertise-addr $myip
+
 exit;
 }
 
