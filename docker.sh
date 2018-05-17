@@ -33,13 +33,14 @@ Manager_FN(){
 myip=$(ip route get 8.8.8.8 | awk '{print $NF; exit}')
 docker swarm init --advertise-addr $myip
 sudo docker swarm join-token manager
+sudo docker node ls
 exit;
 }
 
 Worker_fn(){
 echo "Paste worker Token"
 read worker_id
- docker swarm join --token $worker_id
+sudo docker swarm join --token $worker_id
 exit;
 }
 ############################## Swarm menu ##########################################################
