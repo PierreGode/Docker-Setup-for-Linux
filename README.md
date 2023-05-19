@@ -18,15 +18,15 @@ Usage
 First, download the script and make it executable:
 
 bash
-,,,
+```
 chmod +x docker.sh
-,,,
+```
 To run the script, use the following command:
 
 bash
-,,,
+```
 sudo ./docker.sh
-,,,
+```
 Follow the on-screen instructions provided by the tool. Choose the desired option for installing Docker CE or setting up Docker Swarm.
 
 Caution
