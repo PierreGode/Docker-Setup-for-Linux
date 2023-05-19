@@ -1,6 +1,6 @@
 <h3>Docker CE Installation Tool</h3>
 
-https://ikarus.sg/content/images/2020/07/docker-to-swarm-1.png
+
 
 This is a simple yet powerful Bash script tool designed to facilitate the process of installing Docker CE (Community Edition) on Linux systems.
 
