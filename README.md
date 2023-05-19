@@ -31,7 +31,7 @@ Follow the on-screen instructions provided by the tool. Choose the desired optio
 
 Caution
 
-Please always review scripts from the internet and only run them if you trust the source and understand what the script is doing. This script involves significant changes to your system (installing and removing software).
+This script involves significant changes to your system (installing and removing software).
 
 Contribution
 
