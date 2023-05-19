@@ -1,120 +1,85 @@
 #!/bin/bash
 ##################################################################################################################################
-#                                                                                                                                #
-#                                           This script is written by Pierre Gode                                               #
-#      This program is open source; you can redistribute it and/or modify it under the terms of the GNU General Public           #
-#                     This is an normal bash script and can be executed with sh EX: ( sudo sh docker.sh )                        #
-#                                                                                                                                #
-#                                                                                                                                #
+#
+#                                           This script is written by Pierre Gode
+#      This program is open source; you can redistribute it and/or modify it under the terms of the GNU General Public
+#                     This is a regular bash script and can be executed as: sh docker.sh
+#
+#
 ##################################################################################################################################
 # ~~~~~~~~~~  Environment Setup ~~~~~~~~~~ #
-    NORMAL=$(echo "\033[m")
-    MENU=$(echo "\033[36m") #Blue
-    NUMBER=$(echo "\033[33m") #yellow
-    RED_TEXT=$(echo "\033[31m") #Red
-    INTRO_TEXT=$(echo "\033[32m") #green and white text
-    END=$(echo "\033[0m")
+NORMAL=$(tput sgr0)
+MENU=$(tput setaf 4)  # Blue
+NUMBER=$(tput setaf 3) # Yellow
+RED_TEXT=$(tput setaf 1) # Red
+INTRO_TEXT=$(tput setaf 2) # Green
 # ~~~~~~~~~~  Environment Setup ~~~~~~~~~~ #
-install_me(){
-sudo apt-get remove docker docker-engine docker.io
-sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-sudo apt-get update
-sudo apt-get install -y docker-ce
-echo "#################################"
-echo ""
-docker -v
-sleep 2
-MENU_FN
-}
-######################### manager #############################
-swarm_me(){
-Manager_FN(){
-myip=$(ip route get 8.8.8.8 | awk '{print $NF; exit}')
-docker swarm init --advertise-addr $myip
-sudo docker swarm join-token manager
-sudo docker node ls
-exit;
-}
-########################## worker ################################
-Worker_fn(){
-echo "Paste worker Token"
-read worker_id
-sudo docker swarm join --token $worker_id
-exit;
-}
-############################## Swarm menu ##########################################################
-clear
-    echo "${MENU}*${NUMBER} 1)${MENU} Setup Swarm manager               ${NORMAL}"
-    echo "${MENU}*${NUMBER} 2)${MENU} Setup Swarm worker               ${NORMAL}"
-    echo "${NORMAL}                                                    ${NORMAL}"
-    echo "${ENTER_LINE}Please enter a menu option and enter or ${RED_TEXT}enter to exit. ${NORMAL}"
-	read opt
-while [ opt != '' ]
-    do
-    if [ $opt = "" ]; then 
-            exit;
+
+prompt_continue() {
+    echo -n "${RED_TEXT}Continue? (y/N) ${NORMAL}"
+    read -r answer
+    if [ "$answer" != "${answer#[Yy]}" ] ;then
+        return 0
     else
-        case $opt in
-    1) clear;
-            echo "Setting up Swarm Manager";
-            Manager_FN;
-            ;;
-	2) clear;
-            echo "Setting up Swarm worker";
-            Worker_fn;
-            ;;
-        x)exit;
-        ;;
-       \n)exit;
-        ;;
-        *)clear;
-        opt "Pick an option from the menu";
-        show_etcmenu;
-        ;;
-    esac
-fi
-done
+        return 1
+    fi
 }
 
-MENU_FN(){
-########################################### Menu #######################################
-
-clear
-    echo "${INTRO_TEXT}          Docker setup tool                     ${INTRO_TEXT}"
-    echo "${INTRO_TEXT}       Created by Pierre Goude                  ${INTRO_TEXT}"
-	echo "${INTRO_TEXT} This script will edit several critical files.. ${INTRO_TEXT}"
-	echo "${INTRO_TEXT}  DO NOT attempt this without expert knowledge  ${INTRO_TEXT}"
-    echo "${NORMAL}                                                    ${NORMAL}"
-    echo "${MENU}*${NUMBER} 1)${MENU} Install Docker CE                      ${NORMAL}"
-    echo "${MENU}*${NUMBER} 2)${MENU} Create swarm manager or worker    ${NORMAL}"
-    echo "${NORMAL}                                                    ${NORMAL}"
-    echo "${ENTER_LINE}Please enter a menu option and enter or ${RED_TEXT}enter to exit. ${NORMAL}"
-	read opt
-while [ opt != '' ]
-    do
-    if [ $opt = "" ]; then 
-            exit;
-    else
-        case $opt in
-    1) clear;
-            echo "Installing Docker CE";
-            install_me;
-            ;;
-	2) clear;
-            echo "Setup swarm";
-            swarm_me;
-            ;;
-        x)exit;
-        ;;
-       \n)exit;
-        ;;
-        *)clear;
-        opt "Pick an option from the menu";
-        show_etcmenu;
-        ;;
-    esac
-fi
-done
+install_docker() {
+    echo "${RED_TEXT}This will install Docker on your machine.${NORMAL}"
+    if prompt_continue; then
+        apt-get remove docker docker-engine docker.io
+        apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+        add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+        apt-get update
+        apt-get install -y docker-ce
+        echo "#################################"
+        echo ""
+        docker -v
+        sleep 2
+    fi
+    show_menu
 }
-MENU_FN
+
+swarm_init() {
+    echo "${RED_TEXT}This will initialize Swarm Manager on your machine.${NORMAL}"
+    if prompt_continue; then
+        myip=$(ip route get 8.8.8.8 | awk '{print $NF; exit}')
+        docker swarm init --advertise-addr $myip
+        docker swarm join-token manager
+        docker node ls
+    fi
+    show_menu
+}
+
+swarm_join() {
+    echo "${RED_TEXT}This will setup Swarm worker on your machine.${NORMAL}"
+    if prompt_continue; then
+        echo "Paste worker Token"
+        read -r worker_id
+        docker swarm join --token $worker_id
+    fi
+    show_menu
+}
+
+show_menu() {
+    clear
+    echo "${INTRO_TEXT}Docker setup tool${NORMAL}"
+    echo "${INTRO_TEXT}Created by Pierre Gode${NORMAL}"
+    echo "${INTRO_TEXT}This script will edit several critical files.${NORMAL}"
+    echo "${INTRO_TEXT}DO NOT attempt this without expert knowledge${NORMAL}"
+    echo "${MENU}*${NUMBER} 1)${MENU} Install Docker CE${NORMAL}"
+    echo "${MENU}*${NUMBER} 2)${MENU} Setup Swarm manager${NORMAL}"
+    echo "${MENU}*${NUMBER} 3)${MENU} Setup Swarm worker${NORMAL}"
+    echo "${NORMAL}Enter menu option or ${RED_TEXT}'x' to exit${NORMAL}"
+    read -r opt
+    case $opt in
+        1) echo "Installing Docker CE"; install_docker ;;
+        2) echo "Setting up Swarm Manager"; swarm_init ;;
+        3) echo "Setting up Swarm worker"; swarm_join ;;
+        x) echo "Exiting"; exit;;
+        *) echo "Invalid option"; show_menu;;
+    esac
+}
+
+show_menu
